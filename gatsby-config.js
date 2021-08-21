@@ -1,52 +1,61 @@
-const config = require('./config/website');
+require(`dotenv`).config()
 
-const pathPrefix = config.pathPrefix === '/' ? '' : config.pathPrefix;
+const shouldAnalyseBundle = process.env.ANALYSE_BUNDLE
+const googleAnalyticsTrackingId = process.env.GOOGLE_ANALYTICS_ID
 
 module.exports = {
-  /* General Information */
-  pathPrefix: config.pathPrefix,
   siteMetadata: {
-    siteUrl: config.siteUrl + pathPrefix,
+    // You can overwrite values here that are used for the SEO component
+    // You can also add new values here to query them like usual
+    // See all options: https://github.com/LekoArts/gatsby-themes/blob/master/themes/gatsby-theme-cara/gatsby-config.js
+    siteTitleAlt: `Cara - Gatsby Starter Portfolio`,
   },
-  /* Plugins */
   plugins: [
-    'gatsby-plugin-react-helmet',
-    'gatsby-plugin-emotion',
     {
-      resolve: 'gatsby-source-filesystem',
+      resolve: `@lekoarts/gatsby-theme-cara`,
+      // See the theme's README for all available options
+      options: {},
+    },
+    googleAnalyticsTrackingId && {
+      resolve: `gatsby-plugin-google-analytics`,
       options: {
-        path: `${__dirname}/src/images/`,
-        name: 'images',
+        trackingId: process.env.GOOGLE_ANALYTICS_ID,
       },
     },
-    'gatsby-transformer-sharp',
-    'gatsby-plugin-sharp',
     {
-      resolve: 'gatsby-plugin-manifest',
+      resolve: `gatsby-plugin-manifest`,
       options: {
-        name: config.siteTitle,
-        short_name: config.siteTitleAlt,
-        description: config.siteDescription,
-        start_url: config.pathPrefix,
-        background_color: config.backgroundColor,
-        theme_color: config.themeColor,
-        display: 'fullscreen',
+        name: `Cara - @lekoarts/gatsby-theme-cara`,
+        short_name: `Cara`,
+        description: `Playful and Colorful One-Page portfolio featuring Parallax effects and animations`,
+        start_url: `/`,
+        background_color: `#141821`,
+        theme_color: `#f6ad55`,
+        display: `standalone`,
         icons: [
           {
-            src: '/favicons/android-chrome-192x192.png',
-            sizes: '192x192',
-            type: 'image/png',
+            src: `/android-chrome-192x192.png`,
+            sizes: `192x192`,
+            type: `image/png`,
           },
           {
-            src: '/favicons/android-chrome-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
+            src: `/android-chrome-512x512.png`,
+            sizes: `512x512`,
+            type: `image/png`,
           },
         ],
       },
     },
-    /* Must be placed at the end */
-    'gatsby-plugin-offline',
-    'gatsby-plugin-netlify',
-  ],
-};
+    `gatsby-plugin-offline`,
+    `gatsby-plugin-gatsby-cloud`,
+    `gatsby-plugin-netlify`,
+    shouldAnalyseBundle && {
+      resolve: `gatsby-plugin-webpack-bundle-analyser-v2`,
+      options: {
+        analyzerMode: `static`,
+        reportFilename: `_bundle.html`,
+        openAnalyzer: false,
+      },
+    },
+  ].filter(Boolean),
+}
